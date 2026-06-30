@@ -133,7 +133,7 @@ npm run typecheck
 ## 项目结构
 
 ```
-wechat-ai/
+wechat-ai-bridge/
 ├── manage.bat / manage.sh   # 启动入口
 ├── manage.html              # 管理页面
 ├── pack.ps1                 # 打包脚本（PowerShell）
@@ -149,7 +149,7 @@ wechat-ai/
 │   ├── auth/
 │   │   ├── qr-login.ts      # 扫码登录
 │   │   ├── store.ts         # 凭证存储
-
+│   │   └── users.ts         # 用户管理
 │   ├── claude/client.ts     # Claude Code CLI 对接
 │   ├── mimocode/client.ts   # MiMoCode CLI 对接
 │   ├── cdn/
@@ -158,15 +158,18 @@ wechat-ai/
 │   │   └── upload.ts        # CDN 媒体上传
 │   ├── media/
 │   │   └── silk-transcode.ts # SILK→WAV 语音转码
-│   └── messaging/
-│       ├── inbound.ts       # 消息解析
-│       ├── send-media.ts    # 消息/图片/文件发送
-│       ├── markdown-filter.ts # Markdown 过滤
-│       ├── conversation.ts  # 对话记忆
-│       ├── reminders.ts     # 提醒
-│       ├── schedule.ts      # 定时任务
-│       └── stats.ts         # 统计
-└── docs/                    # 技术分析文档
+│   ├── messaging/
+│   │   ├── inbound.ts       # 消息解析
+│   │   ├── send-media.ts    # 消息/图片/文件发送
+│   │   ├── markdown-filter.ts # Markdown 过滤
+│   │   ├── message-splitter.ts # 智能分段
+│   │   ├── conversation.ts  # 对话记忆
+│   │   ├── reminders.ts     # 提醒
+│   │   ├── schedule.ts      # 定时任务
+│   │   └── stats.ts         # 统计
+│   └── utils/
+│       ├── redact.ts        # 日志脱敏
+│       └── store.ts         # 原子化存储
 ```
 
 ## 打包分发
