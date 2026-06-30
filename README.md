@@ -168,8 +168,7 @@ wechat-ai-bridge/
 │   │   ├── schedule.ts      # 定时任务
 │   │   └── stats.ts         # 统计
 │   └── utils/
-│       ├── redact.ts        # 日志脱敏
-│       └── store.ts         # 原子化存储
+│       └── redact.ts        # 日志脱敏
 ```
 
 ## 打包分发
