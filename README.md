@@ -37,8 +37,11 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/your-username/wechat-ai.git
-cd wechat-ai
+git clone https://github.com/chaxian1/wechat-ai-bridge.git
+cd wechat-ai-bridge
+
+# 创建配置文件（可选，不配置也能直接跑）
+cp .env.example .env
 
 # 安装依赖（仅开发时需要，分发包已内置）
 npm install
