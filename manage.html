@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeChat AI Bridge</title>
+<style>
+:root {
+  --bg: #0a0a0f; --surface: #12121a; --card: #1a1a25; --border: #2a2a3a;
+  --text: #e4e4e7; --dim: #71717a; --title: #fafafa;
+  --green: #22c55e; --red: #ef4444; --blue: #3b82f6; --yellow: #eab308; --purple: #a855f7;
+  --accent: #6366f1; --accent-hover: #818cf8;
+  --radius: 12px; --shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+[data-theme="light"] {
+  --bg: #f8fafc; --surface: #ffffff; --card: #ffffff; --border: #e2e8f0;
+  --text: #1e293b; --dim: #64748b; --title: #0f172a;
+  --btn-bg: #f1f5f9; --btn-hover: #e2e8f0;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden}
+.app{display:flex;height:100%;padding:20px;gap:20px}
+.sidebar{width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:16px;overflow-y:auto}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 0}
+.brand-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(99,102,241,.3)}
+.brand h1{font-size:20px;font-weight:700;color:var(--title);letter-spacing:-.5px}
+.brand p{font-size:12px;color:var(--dim);margin-top:2px}
+.status-card,.config-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.status-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.status-title{font-size:13px;font-weight:600;color:var(--title)}
+.status-badge{display:flex;align-items:center;gap:6px;font-size:12px}
+.status-dot{width:8px;height:8px;border-radius:50%}
+.status-dot.on{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+.status-dot.off{background:var(--red)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.status-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.status-item{font-size:12px;overflow:hidden}
+.status-item .label{color:var(--dim);margin-bottom:2px}
+.status-item .value{color:var(--title);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:default}
+.config-title{font-size:13px;font-weight:600;color:var(--title);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.form-group{margin-bottom:12px}
+.form-group:last-child{margin-bottom:0}
+.form-label{display:block;font-size:11px;color:var(--dim);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.form-input{width:100%;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;transition:all .2s}
+.form-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+select.form-input{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2371717a' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+.btn{padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-size:12px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-hover)}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover{background:#16a34a}
+.btn-danger{background:var(--red);color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-ghost{background:var(--btn-bg,var(--surface));color:var(--text);border:1px solid var(--border)}.btn-ghost:hover{background:var(--btn-hover,var(--card))}
+.btn-sm{padding:6px 10px;font-size:11px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.main{flex:1;display:flex;flex-direction:column;gap:16px;min-width:0}
+.header-bar{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px}
+.header-actions{display:flex;gap:8px}
+.header-title{font-size:14px;font-weight:600;color:var(--title)}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.stat-value{font-size:24px;font-weight:700;color:var(--title);line-height:1}
+.stat-label{font-size:11px;color:var(--dim);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.stat-delta{font-size:10px;margin-top:2px}
+.stat-delta.up{color:var(--green)}
+.stat-delta.down{color:var(--red)}
+.log-panel{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;min-height:0}
+.log-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--border)}
+.log-title{font-size:13px;font-weight:600;color:var(--title);display:flex;align-items:center;gap:8px}
+.log-actions{display:flex;gap:4px}
+.log-content{flex:1;overflow-y:auto;padding:12px;font-family:'SF Mono','Cascadia Code',Consolas,monospace;font-size:12px;line-height:1.7;background:var(--surface);border-radius:0 0 var(--radius) var(--radius)}
+.log-content::-webkit-scrollbar{width:6px}
+.log-content::-webkit-scrollbar-track{background:transparent}
+.log-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.log-line{color:var(--dim);padding:2px 0}
+.log-line.error{color:var(--red)}
+.log-line.success{color:var(--green)}
+.log-line.info{color:var(--blue)}
+.log-line.warn{color:var(--yellow)}
+.filter-bar{display:flex;gap:8px;padding:8px 16px;border-top:1px solid var(--border)}
+.filter-input{flex:1;padding:6px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px}
+.filter-input:focus{outline:none;border-color:var(--accent)}
+.toast{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:999;opacity:0;transform:translateY(-10px);transition:all .3s;pointer-events:none;box-shadow:var(--shadow)}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{background:var(--green);color:#fff}
+.toast.err{background:var(--red);color:#fff}
+.toast.warn{background:var(--yellow);color:#000}
+.spin{display:inline-block;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:1024px){.app{flex-direction:column;padding:12px}.sidebar{width:100%;flex-direction:row;flex-wrap:wrap;gap:12px}.sidebar>*{flex:1;min-width:280px}.stats-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.stats-row{grid-template-columns:1fr 1fr}.header-bar{flex-direction:column;gap:8px;align-items:flex-start}.header-actions{width:100%;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">🤖</div>
+      <div><h1>WeChat AI Bridge</h1><p>微信 AI 桥接管理</p></div>
+    </div>
+    <div class="status-card">
+      <div class="status-header">
+        <span class="status-title">运行状态</span>
+        <div class="status-badge"><span class="status-dot" id="statusDot"></span><span id="statusText">检测中</span></div>
+      </div>
+      <div class="status-grid">
+        <div class="status-item"><div class="label">Bot ID</div><div class="value" id="botId" title="-">-</div></div>
+        <div class="status-item"><div class="label">用户 ID</div><div class="value" id="userId" title="-">-</div></div>
+        <div class="status-item"><div class="label">运行时间</div><div class="value" id="uptime">-</div></div>
+        <div class="status-item"><div class="label">内存</div><div class="value" id="memory">-</div></div>
+      </div>
+    </div>
+    <div class="config-card">
+      <div class="config-title">⚙️ AI 配置</div>
+      <div class="form-group"><label class="form-label">提供商</label><select class="form-input" id="cfgProvider" onchange="onProviderChange()"><option value="claude">Claude Code</option><option value="mimo">MiMoCode</option></select></div>
+      <div class="form-group"><label class="form-label">CLI 路径</label><input class="form-input" id="cfgPath" placeholder="留空自动检测"></div>
+      <div class="form-group"><label class="form-label">模型</label><input class="form-input" id="cfgModel" placeholder="留空使用默认"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="saveAiConfig()">💾 保存</button><button class="btn btn-ghost" onclick="testAi()">🔍 检测</button></div>
+      <div id="testResult" style="margin-top:8px;font-size:11px;display:none;padding:8px;border-radius:6px;background:var(--bg)"></div>
+    </div>
+    <div class="config-card">
+      <div class="config-title">⚡ 系统</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <span style="font-size:12px">开机自启</span>
+        <label style="cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px"><input type="checkbox" id="autoStart" onchange="toggleAutostart()" style="accent-color:var(--accent)"><span id="autoStartLabel">检测中</span></label>
+      </div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">📨 自测</div>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:8px">给自己发送一条测试消息，验证桥接是否正常</p>
+      <button class="btn btn-primary" style="width:100%" onclick="testSend()">📤 发送测试消息</button>
+    </div>
+
+    <div class="config-card">
+      <div class="config-title">🔗 Webhook</div>
+      <div class="form-group">
+        <label class="form-label">Token</label>
+        <div style="display:flex;gap:6px">
+          <input class="form-input" id="cfgWebhookToken" placeholder="设置推送凭据..." style="flex:1">
+          <button class="btn btn-primary btn-sm" onclick="saveWebhookToken()">💾</button>
+        </div>
+      </div>
+      <div id="webhookInfo" style="font-size:10px;color:var(--dim);margin-top:4px"></div>
+      <input class="form-input" id="webhookUrl" readonly style="font-size:10px;margin-top:6px;display:none" onclick="this.select()">
+      <button class="btn btn-ghost btn-sm" id="btnCopyHook" onclick="copyWebhook()" style="display:none;margin-top:6px;width:100%">📋 复制地址</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="header-bar">
+      <span class="header-title">📊 控制台</span>
+      <div class="header-actions">
+        <button class="btn btn-ghost btn-sm" onclick="toggleTheme()" id="themeBtn">☀️ 主题</button>
+        <button class="btn btn-ghost btn-sm" onclick="refreshAll()">🔄 刷新</button>
+        <button class="btn btn-success btn-sm" id="btnStart" onclick="apiAction('start')">▶ 启动</button>
+        <button class="btn btn-danger btn-sm" id="btnStop" onclick="apiAction('stop')">■ 停止</button>
+        <button class="btn btn-ghost btn-sm" onclick="handleRestartProcess()">🔄 重启</button>
+        <button class="btn btn-ghost btn-sm" onclick="handleRelogin()">↻ 重登</button>
+      </div>
+    </div>
+    <!-- Current Task -->
+    <div class="config-card" id="currentTaskCard">
+      <div class="config-title">⚡ 当前任务</div>
+      <div id="taskContent">
+        <div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">暂无任务执行</div>
+      </div>
+    </div>
+    <div class="log-panel">
+      <div class="log-header">
+        <span class="log-title">📋 运行日志</span>
+        <div class="log-actions">
+          <button class="btn btn-ghost btn-sm" onclick="toggleAutoScroll()" id="autoScrollBtn">📌 自动滚动</button>
+          <button class="btn btn-ghost btn-sm" onclick="refreshLogs()">↻ 刷新</button>
+          <button class="btn btn-ghost btn-sm" onclick="downloadLogs()">⬇ 下载</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearLogs()">🗑 清空</button>
+        </div>
+      </div>
+      <div class="log-content" id="log"></div>
+      <div class="filter-bar">
+        <input class="filter-input" id="logFilter" placeholder="🔍 过滤日志..." oninput="applyLogFilter()">
+        <select class="filter-input" style="width:120px" onchange="applyLogFilter()" id="logLevel"><option value="">全部级别</option><option value="ERR">ERROR</option><option value="WARN">WARN</option><option value="INFO">INFO</option></select>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const API = window.location.origin || 'http://localhost:3456';
+let autoScroll = true, allLogs = [], prevStats = null, consecutiveFails = 0, lastToast = '';
+function t(m,s='ok'){if(m===lastToast)return;lastToast=m;const e=document.getElementById('toast');e.textContent=m;e.className='toast '+s+' show';setTimeout(()=>{e.classList.remove('show');lastToast='';},3000)}
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function escapeRegExp(s){return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+async function withLoading(k,p){const bs=document.querySelectorAll(`[data-api="${k}"]`);bs.forEach(b=>{b.disabled=true;b.dataset.orig=b.textContent;b.innerHTML='<span class="spin">⟳</span>'});try{return await p}finally{bs.forEach(b=>{b.disabled=false;b.textContent=b.dataset.orig||b.textContent})}}
+function initTheme(){const s=localStorage.getItem('theme');if(s)document.documentElement.setAttribute('data-theme',s);document.getElementById('themeBtn').textContent=s==='light'?'🌙':'☀️'}
+function toggleTheme(){const h=document.documentElement,i=h.getAttribute('data-theme')==='dark',n=i?'light':'dark';h.setAttribute('data-theme',n);localStorage.setItem('theme',n);document.getElementById('themeBtn').textContent=i?'🌙':'☀️'}
+async function apiAction(a){if(a==='stop'&&!confirm('确认停止桥接？'))return;try{await withLoading(a,fetch(API+'/api/'+a,{method:'POST'}));t(a==='start'?'已启动':a==='stop'?'已停止':'OK')}catch(e){t(e.message,'err')}setTimeout(refreshAll,1500)}
+function handleRelogin(){if(!confirm('确认重新登录？'))return;apiAction('relogin')}
+function handleRestartProcess(){if(!confirm('确认重启？将加载最新代码。'))return;const btn=event.target;btn.disabled=true;btn.textContent='⏳ 重启中...';fetch(API+'/api/restart-process',{method:'POST'}).then(()=>{t('正在重启...');setTimeout(()=>location.reload(),10000)}).catch(e=>{t(e.message,'err');btn.disabled=false;btn.textContent='🔄 重启'})}
+async function refreshAll(){try{const[sr,st]=await Promise.all([fetch(API+'/api/status'),fetch(API+'/api/stats')]);const s=await sr.json(),stats=await st.json();consecutiveFails=0;document.getElementById('btnStart').disabled=s.running;document.getElementById('btnStop').disabled=!s.running;const u=Math.floor((s.uptime||0)/1000);document.getElementById('uptime').textContent=u>3600?Math.floor(u/3600)+'h':u>60?Math.floor(u/60)+'m':u+'s';document.getElementById('memory').textContent=Math.round(stats.memoryMB||0)+'MB';document.getElementById('statusDot').className='status-dot '+(s.running?'on':'off');document.getElementById('statusText').textContent=s.running?'运行中':'已停止';document.getElementById('botId').textContent=s.botId||'-';document.getElementById('botId').title=s.botId||'-';document.getElementById('userId').textContent=s.userId||'-';document.getElementById('userId').title=s.userId||'-';prevStats={messagesIn:stats.messagesIn||0,messagesOut:stats.messagesOut||0,llmCalls:stats.llmCalls||0,toolCalls:stats.toolCalls||0};const tc=document.getElementById('taskContent');if(stats.currentTask){tc.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="status-dot on"></span><span style="font-size:12px;color:var(--dim)">执行中</span><span style="font-size:11px;color:var(--dim);margin-left:auto" id="taskDuration">${stats.currentDuration||0}s</span></div><div style="font-size:12px;color:var(--title);margin-bottom:4px;word-break:break-all">${escapeHtml(stats.currentTask)}</div><div style="font-size:11px;color:var(--dim)">引擎: ${stats.currentProvider||'-'}</div><div style="font-size:11px;color:var(--dim);margin-top:4px">工具: ${(stats.currentTools||[]).join(', ')||'无'}</div>`}else{tc.innerHTML='<div style="text-align:center;padding:20px;color:var(--dim);font-size:13px">暂无任务执行</div>'}}catch(e){consecutiveFails++}}
+function updateStat(id,curr,prev){const el=document.getElementById(id),d=document.getElementById(id+'Delta');el.textContent=curr;if(d&&prev!==null){const v=curr-prev;if(v!==0){d.textContent=(v>0?'+':'')+v;d.className='stat-delta '+(v>0?'up':'down')}else d.textContent=''}}
+async function refreshLogs(){try{const r=await fetch(API+'/api/logs?tail=300'),d=await r.json();allLogs=d.lines||[];applyLogFilter();if(autoScroll){const e=document.getElementById('log');setTimeout(()=>e.scrollTop=e.scrollHeight,30)}}catch(e){}}
+function applyLogFilter(){const q=document.getElementById('logFilter').value.toLowerCase(),lv=document.getElementById('logLevel').value;let lines=allLogs;if(q)lines=lines.filter(l=>l.toLowerCase().includes(q));if(lv)lines=lines.filter(l=>{if(lv==='ERR')return l.includes('[ERR]');if(lv==='WARN')return l.includes('[WARN]')||l.includes('[ERR]');if(lv==='INFO')return /[📨💬✅📤🚀🔔⏰🛑👤]/.test(l);return true});document.getElementById('log').innerHTML=lines.map(l=>{let cls='';if(l.includes('[ERR]'))cls='error';else if(l.includes('[WARN]')||l.includes('⚠'))cls='warn';else if(l.includes('✅')||l.includes('🚀')||l.includes('🔔'))cls='success';else if(l.includes('🔧')||l.includes('📖')||l.includes('🔍'))cls='info';let text=escapeHtml(l);if(q){const re=new RegExp(`(${escapeRegExp(q)})`,'gi');text=text.replace(re,'<mark style="background:rgba(234,179,8,.15);color:var(--yellow);border-radius:2px;padding:0 2px">$1</mark>')}return`<div class="log-line ${cls}">${text}</div>`}).join('')||'<div class="log-line" style="color:var(--dim)">(无日志)</div>'}
+function toggleAutoScroll(){autoScroll=!autoScroll;document.getElementById('autoScrollBtn').textContent=autoScroll?'📌 自动滚动':'⏸️ 手动'}
+function downloadLogs(){const b=new Blob([allLogs.join('\n')],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bridge-'+new Date().toISOString().slice(0,10)+'.log';a.click()}
+function clearLogs(){allLogs=[];document.getElementById('log').innerHTML='<div class="log-line" style="color:var(--dim)">(已清屏)</div>'}
+function onProviderChange(){const p=document.getElementById('cfgProvider').value;document.getElementById('cfgPath').placeholder=p==='mimo'?'留空自动检测 mimo':'留空自动检测 claude'}
+async function loadConfig(){let cfg={};try{cfg=await(await fetch(API+'/api/config')).json();const p=(cfg.AI_PROVIDER||'claude').toLowerCase();document.getElementById('cfgProvider').value=p==='mimo'?'mimo':'claude';document.getElementById('cfgPath').value=(p==='mimo'?cfg.MIMO_PATH:cfg.CLAUDE_PATH)||'';document.getElementById('cfgModel').value=(p==='mimo'?cfg.MIMO_MODEL:cfg.CLAUDE_MODEL)||'';onProviderChange()}catch(e){}}
+async function saveAiConfig(){const p=document.getElementById('cfgProvider').value,path=document.getElementById('cfgPath').value.trim(),model=document.getElementById('cfgModel').value.trim(),body={AI_PROVIDER:p};if(p==='mimo'){body.MIMO_PATH=path;if(model)body.MIMO_MODEL=model}else{body.CLAUDE_PATH=path;if(model)body.CLAUDE_MODEL=model}try{const r=await fetch(API+'/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}),d=await r.json();if(d.ok){t('配置已保存');refreshAll()}else t(d.message,'err')}catch(e){t('保存失败','err')}}
+async function testAi(){const el=document.getElementById('testResult');el.style.display='block';el.innerHTML='<span style="color:var(--dim)"><span class="spin">⟳</span> 检测中...</span>';try{const p=document.getElementById('cfgProvider').value,mp=document.getElementById('cfgPath').value.trim();let url=API+'/api/ai-status?provider='+p;if(mp)url+='&path='+encodeURIComponent(mp);const r=await fetch(url),d=await r.json();if(d.ok)el.innerHTML=`<span style="color:var(--green)">✅ ${d.provider==='mimo'?'MiMoCode':'Claude Code'} ${d.version}</span><br><span style="color:var(--dim);font-size:11px">📁 ${escapeHtml(d.path||'未知')}</span>`;else el.innerHTML=`<span style="color:var(--red)">❌</span> ${d.error||'CLI 未安装'}`}catch(e){el.innerHTML='<span style="color:var(--red)">❌ 无法连接</span>'}}
+async function checkAutostart(){try{const r=await fetch(API+'/api/autostart'),d=await r.json();document.getElementById('autoStart').checked=d.enabled;document.getElementById('autoStartLabel').textContent=d.enabled?'已开启':'已关闭'}catch(e){}}
+async function toggleAutostart(){const en=document.getElementById('autoStart').checked;try{const r=await fetch(API+'/api/autostart',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({enabled:en})}),d=await r.json();document.getElementById('autoStartLabel').textContent=d.enabled?'已开启':'已关闭';t(d.enabled?'已设置开机自启':'已取消');if(!d.ok)document.getElementById('autoStart').checked=!en}catch(e){document.getElementById('autoStart').checked=!en;t('设置失败','err')}}
+async function loadWebhookInfo(){try{const cfg=await(await fetch(API+'/api/config')).json();document.getElementById('cfgWebhookToken').value=cfg.WEBHOOK_TOKEN||'';const r=await fetch(API+'/api/webhook-info'),d=await r.json();if(d.configured){document.getElementById('webhookInfo').textContent='POST 到此地址即可推送消息到微信';document.getElementById('webhookUrl').value=d.url;document.getElementById('webhookUrl').style.display='block';document.getElementById('btnCopyHook').style.display='block'}else{document.getElementById('webhookInfo').textContent='';document.getElementById('webhookUrl').style.display='none';document.getElementById('btnCopyHook').style.display='none'}}catch(e){}}
+async function saveWebhookToken(){const token=document.getElementById('cfgWebhookToken').value.trim();try{const r=await fetch(API+'/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({WEBHOOK_TOKEN:token})}),d=await r.json();if(d.ok){t('已保存');loadWebhookInfo()}else t(d.message,'err')}catch(e){t('保存失败','err')}}
+function copyWebhook(){const el=document.getElementById('webhookUrl');el.select();navigator.clipboard.writeText(el.value).then(()=>t('已复制'),()=>t('复制失败','err'))}
+async function testSend(){try{const r=await fetch(API+'/api/test-send',{method:'POST'}),d=await r.json();t(d.ok?'已发送':d.error,d.ok?'ok':'err')}catch(e){t('发送失败','err')}}
+setInterval(refreshAll,5000);setInterval(refreshLogs,5000);refreshAll();refreshLogs();loadConfig();checkAutostart();initTheme();loadWebhookInfo();
+</script>
+</body>
+</html>
