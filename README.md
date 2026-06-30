@@ -30,21 +30,26 @@
 
 - Windows 10/11（已验证）
 - macOS / Linux（代码已适配，但未经过实际测试验证）
-- Node.js >= 22（分发包已内置，无需安装）
+- Node.js >= 22
 - Claude Code CLI 或 MiMoCode CLI（任选一个）
 
 ### 安装
 
+**方式一：下载 Release 压缩包（推荐）**
+
+从 [Releases](https://github.com/chaxian1/wechat-ai-bridge/releases) 下载 `wechat-ai-bridge-v1.0.0.zip`，解压即可使用（`node_modules` 已内置，无需 `npm install`）。
+
+**方式二：克隆源码**
+
 ```bash
-# 克隆项目
 git clone https://github.com/chaxian1/wechat-ai-bridge.git
 cd wechat-ai-bridge
 
-# 创建配置文件（可选，不配置也能直接跑）
-cp .env.example .env
-
-# 安装依赖（仅开发时需要，分发包已内置）
+# 安装依赖
 npm install
+
+# 创建配置文件（可选，不创建也能用默认值跑）
+cp .env.example .env
 ```
 
 ### 启动
