@@ -5,8 +5,8 @@ Set-Location $root
 $version = "1.0.0"
 $distDir = "$root\dist"
 New-Item -ItemType Directory -Force -Path $distDir | Out-Null
-$outDir = "$root\wechat-ai-v$version"
-$zipFile = "$distDir\wechat-ai-v$version.zip"
+$outDir = "$root\wechat-ai-bridge-v$version"
+$zipFile = "$distDir\wechat-ai-bridge-v$version.zip"
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan

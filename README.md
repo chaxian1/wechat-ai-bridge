@@ -177,7 +177,7 @@ wechat-ai-bridge/
 # 打包（需要 PowerShell）
 powershell -File pack.ps1
 
-# 产物：dist/wechat-ai-v1.0.0.zip
+# 产物：dist/wechat-ai-bridge-v1.0.0.zip
 # 包含：manage.bat/sh + src/ + node_modules + .env 模板
 # 不包含：state/、.env、开发依赖
 ```
